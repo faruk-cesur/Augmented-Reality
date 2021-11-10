@@ -11,6 +11,14 @@ public class ARCursor : MonoBehaviour
     public ARRaycastManager raycastManager; // Detects Planes We Touch
 
     public bool useCursor = true;
+    public bool instantiated;
+
+    private Camera _camera;
+
+    private void Awake()
+    {
+        _camera = Camera.main;
+    }
 
     private void Start()
     {
@@ -28,7 +36,13 @@ public class ARCursor : MonoBehaviour
         {
             if (useCursor)
             {
-                GameObject.Instantiate(objectToPlace, transform.position, transform.rotation);
+                if (!instantiated)
+                {
+                    instantiated = true;
+                    var transform1 = transform;
+                    GameObject.Instantiate(objectToPlace, transform1.position, transform1.rotation);
+                    cursorChildObject.SetActive(false);
+                }
             }
             else
             {
@@ -44,14 +58,15 @@ public class ARCursor : MonoBehaviour
 
     private void UpdateCursor()
     {
-        Vector2 screenPosition = Camera.main.ViewportToScreenPoint(new Vector2(0.5f, 0.5f));
+        Vector2 screenPosition = _camera.ViewportToScreenPoint(new Vector2(0.5f, 0.5f));
         List<ARRaycastHit> hits = new List<ARRaycastHit>();
         raycastManager.Raycast(screenPosition, hits, UnityEngine.XR.ARSubsystems.TrackableType.Planes);
 
         if (hits.Count > 0)
         {
-            transform.position = hits[0].pose.position;
-            transform.rotation = hits[0].pose.rotation;
+            var transform1 = transform;
+            transform1.position = hits[0].pose.position;
+            transform1.rotation = hits[0].pose.rotation;
         }
     }
 }
