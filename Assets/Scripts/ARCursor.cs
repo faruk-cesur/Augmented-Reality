@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,26 +5,18 @@ using UnityEngine.XR.ARFoundation;
 
 public class ARCursor : MonoBehaviour
 {
-    public GameObject cursorChildObject; // The Cursor Image
-    public GameObject objectToPlace; // The 3D Model To Place In Scene
-    public ARRaycastManager raycastManager; // Detects Planes We Touch
+    public GameObject cursorChildObject;
+    public GameObject objectToPlace;
+    public ARRaycastManager raycastManager;
 
     public bool useCursor = true;
-    public bool instantiated;
 
-    private Camera _camera;
-
-    private void Awake()
-    {
-        _camera = Camera.main;
-    }
-
-    private void Start()
+    void Start()
     {
         cursorChildObject.SetActive(useCursor);
     }
 
-    private void Update()
+    void Update()
     {
         if (useCursor)
         {
@@ -36,18 +27,13 @@ public class ARCursor : MonoBehaviour
         {
             if (useCursor)
             {
-                if (!instantiated)
-                {
-                    instantiated = true;
-                    var transform1 = transform;
-                    GameObject.Instantiate(objectToPlace, transform1.position, transform1.rotation);
-                    cursorChildObject.SetActive(false);
-                }
+                GameObject.Instantiate(objectToPlace, transform.position, transform.rotation);
             }
             else
             {
                 List<ARRaycastHit> hits = new List<ARRaycastHit>();
-                raycastManager.Raycast(Input.GetTouch(0).position, hits, UnityEngine.XR.ARSubsystems.TrackableType.Planes);
+                raycastManager.Raycast(Input.GetTouch(0).position, hits,
+                    UnityEngine.XR.ARSubsystems.TrackableType.Planes);
                 if (hits.Count > 0)
                 {
                     GameObject.Instantiate(objectToPlace, hits[0].pose.position, hits[0].pose.rotation);
@@ -56,17 +42,16 @@ public class ARCursor : MonoBehaviour
         }
     }
 
-    private void UpdateCursor()
+    void UpdateCursor()
     {
-        Vector2 screenPosition = _camera.ViewportToScreenPoint(new Vector2(0.5f, 0.5f));
+        Vector2 screenPosition = Camera.main.ViewportToScreenPoint(new Vector2(0.5f, 0.5f));
         List<ARRaycastHit> hits = new List<ARRaycastHit>();
         raycastManager.Raycast(screenPosition, hits, UnityEngine.XR.ARSubsystems.TrackableType.Planes);
 
         if (hits.Count > 0)
         {
-            var transform1 = transform;
-            transform1.position = hits[0].pose.position;
-            transform1.rotation = hits[0].pose.rotation;
+            transform.position = hits[0].pose.position;
+            transform.rotation = hits[0].pose.rotation;
         }
     }
 }
